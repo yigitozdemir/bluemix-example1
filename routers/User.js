@@ -50,9 +50,18 @@ router.post('/login', (req, res) => {
         } 
         //if user found then create a token, save it and send as a response
         else {
-            var id = result._id;
-            res.json({status: "success", id: result.docs[0]._id, token: createToken(64)});
-            return;
+            var cacheClient = require('../config/DataCacheClient');
+            var token = createToken(64);
+            
+            cacheClient.put(result.docs[0]._id.toString(), {item: token})
+            .then( (resp) => {
+                res.json({status: "success", id: result.docs[0]._id, token: token});
+                return;
+            })
+            .catch((err) => {
+                res.json({status: "failed", reason: err});
+                return;
+            });
         }
     });
 });
