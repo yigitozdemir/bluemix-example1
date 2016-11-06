@@ -5,6 +5,8 @@ var router = express.Router();
 var cnf =  JSON.parse(process.env.VCAP_SERVICES);
 var connection = cloudant({account: cnf.cloudantNoSQLDB[0].credentials.username, password: cnf.cloudantNoSQLDB[0].credentials.password});
 
+var IsAuthenticated = require('../middleware/AuthenticationCheck');
+
 //register endpoint
 router.post('/register', (req, res) => {
     var mTest = connection.db.use('users');
@@ -64,6 +66,13 @@ router.post('/login', (req, res) => {
             });
         }
     });
+});
+
+
+//Middleware test to check if it works correctly
+router.post('/logintest', IsAuthenticated, function(req, res) {
+    res.json({status: "success"});
+    return;
 });
 
 module.exports = router;
